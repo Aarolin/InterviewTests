@@ -1,4 +1,4 @@
-#include <iostream>
+п»ї#include <iostream>
 #include <string>
 #include <vector>
 #include <map>
@@ -23,23 +23,23 @@ void BasicStringTests() {
 }
 
 void TestConstructors() {
-	// Протестируем все конструкторы.
+	// РџСЂРѕС‚РµСЃС‚РёСЂСѓРµРј РІСЃРµ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂС‹.
 	
 	{
-		// Конструктор по умолчанию
+		// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
 		String empty_str;
 		assert(empty_str.Size() == 0);
 	}
 	
 	size_t str_lenght = 10;
 	{
-		// Конструктор на основании разрмера строки
+		// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РЅР° РѕСЃРЅРѕРІР°РЅРёРё СЂР°Р·СЂРјРµСЂР° СЃС‚СЂРѕРєРё
 		String str_without_values(str_lenght);
 		assert(str_without_values.Size() == str_lenght);
 	}
 	
 	{
-		// Конструктор на основании размера и заданного символа
+		// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РЅР° РѕСЃРЅРѕРІР°РЅРёРё СЂР°Р·РјРµСЂР° Рё Р·Р°РґР°РЅРЅРѕРіРѕ СЃРёРјРІРѕР»Р°
 		char test_ch = 'a';
 		String str_with_ch(str_lenght, test_ch);
 		assert(str_with_ch.Size() == str_lenght);
@@ -47,14 +47,14 @@ void TestConstructors() {
 	}
 	
 	{
-		// Конструктор на основании строки в стиле C
+		// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РЅР° РѕСЃРЅРѕРІР°РЅРёРё СЃС‚СЂРѕРєРё РІ СЃС‚РёР»Рµ C
 		String c_str("hello\0");
 		assert(c_str.Size() == 5);
 		assert(c_str == "hello");
 	}
 
 	{
-		// Копирующий конструктор
+		// РљРѕРїРёСЂСѓСЋС‰РёР№ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ
 		String s1("test\0");
 		String s2(s1);
 		assert(s1.Size() == s2.Size());
@@ -62,7 +62,7 @@ void TestConstructors() {
 	}
 
 	{
-		// Конструктор перемещения
+		// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РїРµСЂРµРјРµС‰РµРЅРёСЏ
 		String s1("move\0");
 		String s2(std::move(s1));
 		assert(s2 == "move");
@@ -73,7 +73,7 @@ void TestConstructors() {
 void TestOperators() {
 
 	{
-		// Оператор =
+		// РћРїРµСЂР°С‚РѕСЂ =
 		String str1 = "hello";
 		String str2;
 		str2 = str1;
@@ -95,7 +95,7 @@ void TestOperators() {
 	}
 
 	{
-		// Оператор +=
+		// РћРїРµСЂР°С‚РѕСЂ +=
 		String str1("hello");
 		String str2("world");
 		str1 += str2;
@@ -123,7 +123,7 @@ void TestOperators() {
 	}
 
 	{
-		// Оператор <
+		// РћРїРµСЂР°С‚РѕСЂ <
 		String str1 = "aaa";
 		String str2 = "b";
 		assert(str1 < str2);
@@ -139,7 +139,7 @@ void TestOperators() {
 	}
 
 	{
-		// Оператор ==
+		// РћРїРµСЂР°С‚РѕСЂ ==
 		String str1 = "aaa";
 		String str2 = "bbb";
 		assert(!(str1 == str2));
