@@ -41,6 +41,7 @@ const char& Allocator::operator[](size_t index) const noexcept {
 	return data_[index];
 }
 
+
 char* Allocator::GetAddress() const noexcept {
 	return data_;
 }
@@ -52,6 +53,11 @@ size_t Allocator::Capacity() const noexcept {
 void Allocator::Swap(Allocator& other) {
 	std::swap(data_, other.data_);
 	std::swap(capacity_, other.capacity_);
+}
+
+void Allocator::Clear() {
+	operator delete(data_);
+	capacity_ = 0;
 }
 
 String::String(size_t size) : String(size, char{}) {
@@ -102,9 +108,6 @@ String& String::operator=(const String& other) {
 	return *this;
 }
 
-
-
-
 String& String::operator+=(const String& other) {
 	size_t new_str_size = size_ + other.size_;
 	size_t cur_capacity = str_.Capacity();
@@ -139,6 +142,28 @@ String& String::operator+=(const char* str) {
 	return *this;
 }
 
+void String::Push(char ch) {
+	size_t new_size = size_ + 1;
+	if (new_size > str_.Capacity()) {
+		String new_str(new_size * 2);
+		CopyToNewStr(*this, new_str, 0, size_);
+		new_str[size_] = ch;
+		new_str.size_ = new_size;
+		Swap(new_str);
+		return;
+	}
+	str_[size_] = ch;
+	size_++;
+}
+
+bool String::Empty() {
+	return size_ == 0;
+}
+
+void String::Clear() {
+	str_.Clear();
+	size_ = 0;
+}
 
 char& String::operator[](size_t index) noexcept {
 	return str_[index];
@@ -169,6 +194,9 @@ void CopyToNewStr(const char* old_str, String& new_str, size_t begin, size_t end
 	}
 }
 
+char GetLowCaseChar(char ch) {
+	return ch >= 'A' && ch <= 'Z' ? ch + 32 : ch;
+}
 
 String operator+(const String& lhs, const String& rhs) {
 	size_t new_str_len = lhs.Size() + rhs.Size();
@@ -191,19 +219,40 @@ String operator+(const String& lhs, const char* rhs) {
 	return rhs + lhs;
 }
 
+std::ostream& operator<<(std::ostream& os, const String& str) {
+	for (size_t i = 0; i < str.Size(); ++i) {
+		os << str[i];
+	}
+	return os;
+}
+
+std::istream& operator>>(std::istream& is, String& str) {
+	if (!str.Empty()) {
+		str.Clear();
+	}
+	while (is && (is.peek() != '\n' && is.peek() != '\0')) {
+		str.Push(is.get());
+	}
+	is.get();
+	return is;
+}
+
 bool operator<(const String& lhs, const String& rhs) {
 	size_t l_iter = 0, r_iter = 0;
 	size_t l_end = lhs.Size();
 	size_t r_end = rhs.Size();
 	for (; l_iter < l_end && r_iter < r_end; ++l_iter, ++r_iter) {
-		if (lhs[l_iter] < rhs[r_iter]) {
+		// Игнорируем регистр
+		char lhs_ch = GetLowCaseChar(lhs[l_iter]);
+		char rhs_ch = GetLowCaseChar(rhs[r_iter]);
+		if (lhs_ch < rhs_ch) {
 			return true;
 		}
-		if (rhs[r_iter] < lhs[l_iter]) {
+		if (rhs_ch < lhs_ch) {
 			return false;
 		}
 	}
-	return (l_iter == l_end - 1) && (r_iter != r_end - 1);
+	return (l_iter == l_end) && (r_iter != r_end);
 }
 
 bool operator<(const String& lhs, const char* rhs) {
@@ -211,16 +260,34 @@ bool operator<(const String& lhs, const char* rhs) {
 	size_t l_end = lhs.Size();
 	size_t r_end = std::strlen(rhs);
 	for (; l_iter < l_end && r_iter < r_end; ++l_iter, ++r_iter) {
-		if (lhs[l_iter] < rhs[r_iter]) {
+		char lhs_ch = GetLowCaseChar(lhs[l_iter]);
+		char rhs_ch = GetLowCaseChar(rhs[r_iter]);
+		if (lhs_ch < rhs_ch) {
 			return true;
 		}
-		if (rhs[r_iter] < lhs[l_iter]) {
+		if (rhs_ch < lhs_ch) {
 			return false;
 		}
 	}
-	return (l_iter == l_end - 1) && (r_iter != r_end - 1);
+	return (l_iter == l_end) && (r_iter != r_end);
 }
 
+bool operator<(const char* lhs, const String& rhs) {
+	size_t l_iter = 0, r_iter = 0;
+	size_t l_end = std::strlen(lhs);
+	size_t r_end = rhs.Size();
+	for (; l_iter < l_end && r_iter < r_end; ++l_iter, ++r_iter) {
+		char lhs_ch = GetLowCaseChar(lhs[l_iter]);
+		char rhs_ch = GetLowCaseChar(rhs[r_iter]);
+		if (lhs_ch < rhs_ch) {
+			return true;
+		}
+		if (rhs_ch < lhs_ch) {
+			return false;
+		}
+	}
+	return (l_iter == l_end) && (r_iter != r_end);
+}
 
 bool operator==(const String& lhs, const String& rhs) {
 	size_t l_iter = 0, r_iter = 0;
@@ -228,7 +295,9 @@ bool operator==(const String& lhs, const String& rhs) {
 	size_t r_end = rhs.Size();
 	if (l_end == r_end) {
 		for (; l_iter < l_end && r_iter < r_end; ++l_iter, ++r_iter) {
-			if (lhs[l_iter] != rhs[r_iter]) {
+			char lhs_ch = GetLowCaseChar(lhs[l_iter]);
+			char rhs_ch = GetLowCaseChar(rhs[r_iter]);
+			if (lhs_ch != rhs_ch) {
 				return false;
 			}
 		}
@@ -243,11 +312,18 @@ bool operator==(const String& lhs, const char* rhs) {
 	size_t r_end = std::strlen(rhs);
 	if (l_end == r_end) {
 		for (; l_iter < l_end && r_iter < r_end; ++l_iter, ++r_iter) {
-			if (lhs[l_iter] != rhs[r_iter]) {
+			char lhs_ch = GetLowCaseChar(lhs[l_iter]);
+			char rhs_ch = GetLowCaseChar(rhs[r_iter]);
+			if (lhs_ch != rhs_ch) {
 				return false;
 			}
 		}
 		return true;
 	}
 	return false;
+}
+
+bool operator==(const char* lhs, const String& rhs) {
+	// Используем уже готовый оператор
+	return rhs == lhs;
 }

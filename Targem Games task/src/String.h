@@ -1,8 +1,8 @@
 #pragma once
+#include <iostream>
 #include <cassert>
 #include <cstring>
 #include <utility>
-
 
 class Allocator {
 public:
@@ -23,6 +23,7 @@ public:
 	size_t Capacity() const noexcept;
 
 	void Swap(Allocator& other);
+	void Clear();
 
 	~Allocator();
 
@@ -31,11 +32,8 @@ private:
 	size_t capacity_ = 0;
 };
 
-
 class String {
 public:
-	using Iterator = char*;
-
 	String() = default;
 	String(const char* str);
 
@@ -51,36 +49,38 @@ public:
 	String& operator+=(const String& other);
 	String& operator+=(const char* other);
 
+	void Push(char ch);
+	bool Empty();
+	void Clear();
+
 	char& operator[](size_t index) noexcept;
 	const char& operator[](size_t index) const noexcept;
 
 	size_t Size() const noexcept;
-
-	/*Iterator begin();
-	const Iterator begin() const;
-
-	Iterator end();
-	const Iterator end() const;*/
-
 
 private:
 	Allocator str_;
 	size_t size_ = 0;
 
 	void Swap(String& other);
-	
-
 };
 
 void CopyToNewStr(const String& old_str, String& new_str, size_t begin, size_t end);
 void CopyToNewStr(const char* old_str, String& new_str, size_t begin, size_t end);
 
+char GetLowCaseChar(char ch);
+
 bool operator<(const String& lhs, const String& rhs);
 bool operator<(const String& lhs, const char* rhs);
+bool operator<(const char* lhs, const String& rhs);
 
 bool operator==(const String& lhs, const String& rhs);
 bool operator==(const String& lhs, const char* rhs);
+bool operator==(const char* lhs, const String& rhs);
 
 String operator+(const String& lhs, const String& rhs);
 String operator+(const char* lhs, const String& rhs);
-String operator+(const String& lhs, const char& rhs);
+String operator+(const String& lhs, const char* rhs);
+
+std::ostream& operator<<(std::ostream& os, const String& str);
+std::istream& operator>>(std::istream& is, String& str);
