@@ -104,6 +104,16 @@ void TestOperators() {
 	}
 
 	{
+		// Оператор +
+		String str1 = "aa";
+		String str2 = "bb";
+		assert(str1 + str2 != str2 + str1);
+		String str3 = str1 + str2;
+		assert(str3 == "aabb");
+		assert(str3.Size() == str1.Size() + str2.Size());
+	}
+
+	{
 		// Оператор <
 		String str1 = "aaa";
 		String str2 = "b";
@@ -254,25 +264,32 @@ void TestOutput() {
 	std::cout << str;
 }
 
-int main() {
-	//TestConstructors();
-	//TestOperators();
-	//TestContainers();
-	//TestOutput();
+void RunTests() {
+	TestConstructors();
+	TestOperators();
+	TestContainers();
+	TestOutput();
+}
+
+void RunProgramm() {
 	std::vector<String> vc;
 	String str;
 	std::cout << "Enter ctrl + z to stop input" << std::endl;
 	while (std::cin >> str) {
-		vc.push_back(std::move(str)); 
+		vc.push_back(std::move(str));
 	}
 
 	std::sort(vc.begin(), vc.end(), [](const String& lhs, const String& rhs) {
 		return rhs < lhs;
 		});
 
-	for (const String& str : vc) { 
+	for (const String& str : vc) {
 		std::cout << str << std::endl;
 	}
+}
 
+int main() {
+	RunTests();
+	RunProgramm();
 	return 0;
 }
